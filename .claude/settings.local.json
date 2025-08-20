@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(nvim:*)",
+      "Bash(mkdir:*)",
+      "Bash(/home/linuxbrew/.linuxbrew/bin/zk init --no-input)",
+      "Bash(mv:*)",
+      "mcp__sequential-thinking__sequentialthinking",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__get-library-docs",
+      "WebFetch(domain:github.com)"
+    ]
+  },
+  "outputStyle": "neovim-expert"
+}
