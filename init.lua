@@ -84,36 +84,67 @@ I hope you enjoy your Neovim journey,
 P.S. You can delete this when you're done too. It's your config now! :)
 --]]
 
--- Set <space> as the leader key
--- See `:help mapleader`
---  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
-vim.g.mapleader = ' '
-vim.g.maplocalleader = ' '
+-- ╔══════════════════════════════════════════════════════════════════════╗
+-- ║                         Leader Key Configuration                      ║
+-- ╠══════════════════════════════════════════════════════════════════════╣
+-- ║ The leader key is your personal command prefix for custom keymaps.   ║
+-- ║ Space is recommended as it's easy to reach with both thumbs.         ║
+-- ║ IMPORTANT: This MUST be set before plugins are loaded!               ║
+-- ╚══════════════════════════════════════════════════════════════════════╝
+vim.g.mapleader = ' '        -- Global leader for most mappings
+vim.g.maplocalleader = ' '   -- Local leader for buffer-specific mappings
 
--- Set to true if you have a Nerd Font installed and selected in the terminal
+-- ┌──────────────────────────────────────────────────────────────────────┐
+-- │                         Nerd Font Configuration                       │
+-- ├──────────────────────────────────────────────────────────────────────┤
+-- │ Set to true if you have a Nerd Font installed (e.g., JetBrainsMono) │
+-- │ This enables icons in various plugins like telescope, lualine, etc.  │
+-- │ Download from: https://www.nerdfonts.com/                            │
+-- └──────────────────────────────────────────────────────────────────────┘
 vim.g.have_nerd_font = false
 
--- [[ Setting options ]]
--- See `:help vim.opt`
--- NOTE: You can change these options as you wish!
---  For more options, you can see `:help option-list`
+-- ┌──────────────────────────────────────────────────────────────────────┐
+-- │                         Provider Configuration                        │
+-- ├──────────────────────────────────────────────────────────────────────┤
+-- │ Configure paths for external providers (Python, Node.js, Ruby)       │
+-- │ This ensures Neovim can find the necessary packages for plugins      │
+-- └──────────────────────────────────────────────────────────────────────┘
+vim.g.python3_host_prog = vim.fn.expand('~/.local/share/nvim/venv/neovim-provider/bin/python')
 
--- Make line numbers default
+-- ╔══════════════════════════════════════════════════════════════════════╗
+-- ║                         Neovim Editor Options                         ║
+-- ╠══════════════════════════════════════════════════════════════════════╣
+-- ║ Core editor behavior configuration. These settings control how       ║
+-- ║ Neovim looks and behaves. See `:help vim.opt` for all options.      ║
+-- ║ Reference: `:help option-list` for complete documentation.           ║
+-- ╚══════════════════════════════════════════════════════════════════════╝
+
+-- ┌─────────────────── Line Numbers Configuration ──────────────────────┐
+-- │ Show absolute line numbers in the gutter for easy navigation        │
+-- └──────────────────────────────────────────────────────────────────────┘
 vim.opt.number = true
--- You can also add relative line numbers, to help with jumping.
---  Experiment for yourself to see if you like it!
+-- TIP: Enable relative line numbers for easier vertical motion
+-- Uncomment to show distance from cursor line (helps with 10j, 5k, etc.)
 -- vim.opt.relativenumber = true
 
--- Enable mouse mode, can be useful for resizing splits for example!
+-- ┌─────────────────── Mouse Support Configuration ─────────────────────┐
+-- │ Enable mouse for all modes ('a' = all). Useful for:                │
+-- │ • Resizing splits by dragging borders                               │
+-- │ • Scrolling through buffers                                         │
+-- │ • Visual selection (though keyboard is faster!)                     │
+-- └──────────────────────────────────────────────────────────────────────┘
 vim.opt.mouse = 'a'
 
 -- Don't show the mode, since it's already in the status line
 vim.opt.showmode = false
 
--- Sync clipboard between OS and Neovim.
---  Schedule the setting after `UiEnter` because it can increase startup-time.
---  Remove this option if you want your OS clipboard to remain independent.
---  See `:help 'clipboard'`
+-- ┌─────────────────── System Clipboard Integration ────────────────────┐
+-- │ Sync Neovim's clipboard with system clipboard for seamless copy/   │
+-- │ paste between Neovim and other applications.                        │
+-- │ • Scheduled after UI loads to improve startup performance           │
+-- │ • Uses 'unnamedplus' for both copy and paste operations            │
+-- │ • Requires: xclip/xsel (Linux), pbcopy (macOS), win32yank (Windows)│
+-- └──────────────────────────────────────────────────────────────────────┘
 vim.schedule(function()
   vim.opt.clipboard = 'unnamedplus'
 end)
@@ -161,8 +192,13 @@ vim.opt.scrolloff = 10
 -- See `:help 'confirm'`
 vim.opt.confirm = true
 
--- [[ Basic Keymaps ]]
---  See `:help vim.keymap.set()`
+-- ╔══════════════════════════════════════════════════════════════════════╗
+-- ║                         Essential Key Mappings                        ║
+-- ╠══════════════════════════════════════════════════════════════════════╣
+-- ║ Core keyboard shortcuts for navigation and editing.                  ║
+-- ║ See `:help vim.keymap.set()` for mapping syntax.                    ║
+-- ║ Format: vim.keymap.set(mode, keys, action, options)                  ║
+-- ╚══════════════════════════════════════════════════════════════════════╝
 
 -- Clear highlights on search when pressing <Esc> in normal mode
 --  See `:help hlsearch`
@@ -170,6 +206,9 @@ vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- Diagnostic keymaps
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+
+-- Quick reference keybinding
+vim.keymap.set('n', '<leader>?', '<cmd>edit ~/.config/nvim/KEYBINDINGS.md<CR>', { desc = 'Show Keybindings Reference' })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
@@ -200,46 +239,70 @@ vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper win
 -- vim.keymap.set("n", "<C-S-j>", "<C-w>J", { desc = "Move window to the lower" })
 -- vim.keymap.set("n", "<C-S-k>", "<C-w>K", { desc = "Move window to the upper" })
 
--- [[ Basic Autocommands ]]
---  See `:help lua-guide-autocommands`
+-- ╔══════════════════════════════════════════════════════════════════════╗
+-- ║                           Autocommands                                ║
+-- ╠══════════════════════════════════════════════════════════════════════╣
+-- ║ Automatic commands that trigger on specific events.                  ║
+-- ║ See `:help lua-guide-autocommands` for detailed documentation.       ║
+-- ╚══════════════════════════════════════════════════════════════════════╝
 
--- Highlight when yanking (copying) text
---  Try it with `yap` in normal mode
---  See `:help vim.highlight.on_yank()`
+-- ┌─────────────────── Yank Highlighting Feature ──────────────────────┐
+-- │ Briefly highlights text when you copy (yank) it, providing visual  │
+-- │ feedback. Try it: press 'yap' in normal mode to yank a paragraph.  │
+-- │ The highlight duration is configurable via on_yank({ timeout = ms })│
+-- └──────────────────────────────────────────────────────────────────────┘
 vim.api.nvim_create_autocmd('TextYankPost', {
   desc = 'Highlight when yanking (copying) text',
   group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
   callback = function()
-    vim.highlight.on_yank()
+    vim.highlight.on_yank() -- Default timeout: 150ms
   end,
 })
 
--- [[ Install `lazy.nvim` plugin manager ]]
---    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
+-- ╔══════════════════════════════════════════════════════════════════════╗
+-- ║                    Lazy.nvim Plugin Manager Setup                     ║
+-- ╠══════════════════════════════════════════════════════════════════════╣
+-- ║ Lazy.nvim is a modern plugin manager focused on startup performance. ║
+-- ║ It supports lazy-loading, automatic installation, and lockfiles.     ║
+-- ║ Documentation: `:help lazy.nvim.txt`                                 ║
+-- ║ Repository: https://github.com/folke/lazy.nvim                       ║
+-- ╚══════════════════════════════════════════════════════════════════════╝
+
+-- ┌────────────────── Bootstrap Lazy.nvim Installation ─────────────────┐
+-- │ Auto-install lazy.nvim if it's not present. This ensures the       │
+-- │ plugin manager is available on first run without manual setup.      │
+-- └──────────────────────────────────────────────────────────────────────┘
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
+  -- Clone lazy.nvim from GitHub using sparse checkout for efficiency
   local lazyrepo = 'https://github.com/folke/lazy.nvim.git'
   local out = vim.fn.system { 'git', 'clone', '--filter=blob:none', '--branch=stable', lazyrepo, lazypath }
   if vim.v.shell_error ~= 0 then
     error('Error cloning lazy.nvim:\n' .. out)
   end
 end ---@diagnostic disable-next-line: undefined-field
-vim.opt.rtp:prepend(lazypath)
+vim.opt.rtp:prepend(lazypath) -- Add lazy.nvim to runtime path
 
--- [[ Configure and install plugins ]]
---
---  To check the current status of your plugins, run
---    :Lazy
---
---  You can press `?` in this menu for help. Use `:q` to close the window
---
---  To update plugins you can run
---    :Lazy update
---
--- NOTE: Here is where you install your plugins.
+-- ╔══════════════════════════════════════════════════════════════════════╗
+-- ║                      Plugin Configuration Section                     ║
+-- ╠══════════════════════════════════════════════════════════════════════╣
+-- ║ This section defines all plugins and their configurations.           ║
+-- ║                                                                       ║
+-- ║ Useful Commands:                                                     ║
+-- ║ • :Lazy         - Open plugin manager UI                            ║
+-- ║ • :Lazy update  - Update all plugins                                ║
+-- ║ • :Lazy sync    - Sync plugins with lockfile                        ║
+-- ║ • :Lazy profile - Analyze startup performance                       ║
+-- ║                                                                       ║
+-- ║ In Lazy UI: Press '?' for help, 'U' to update, 'X' to clean         ║
+-- ╚══════════════════════════════════════════════════════════════════════╝
 require('lazy').setup({
-  -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
-  'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
+  -- ┌──────────────────────────────────────────────────────────────────────┐
+  -- │                         Simple Plugin Example                         │
+  -- ├──────────────────────────────────────────────────────────────────────┤
+  -- │ Plugins can be specified as simple strings 'owner/repo' for GitHub   │
+  -- └──────────────────────────────────────────────────────────────────────┘
+  'tpope/vim-sleuth', -- Intelligently detect indentation settings per file
 
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
@@ -336,9 +399,15 @@ require('lazy').setup({
 
       -- Document existing key chains
       spec = {
+        { '<leader>?', desc = 'Keybindings Reference' },
         { '<leader>s', group = '[S]earch' },
         { '<leader>t', group = '[T]oggle' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
+        { '<leader>g', group = '[G]it' },
+        { '<leader>x', group = 'Diagnosti[X]' },
+        { '<leader>z', group = '[Z]ettelkasten' },
+        { '<leader>b', group = '[B]uffer' },
+        { '<leader>m', group = '[M]arkdown' },
       },
     },
   },
@@ -886,7 +955,13 @@ require('lazy').setup({
       -- Load the colorscheme here.
       -- Like many other themes, this one has different styles, and you could load
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
+      -- vim.cmd.colorscheme 'tokyonight-night'
+      
+      -- Try catppuccin if available, fallback to tokyonight
+      local ok = pcall(vim.cmd.colorscheme, 'catppuccin-mocha')
+      if not ok then
+        vim.cmd.colorscheme 'tokyonight-night'
+      end
     end,
   },
 
@@ -972,11 +1047,18 @@ require('lazy').setup({
   -- require 'kickstart.plugins.neo-tree',
   -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
-  -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
-  --    This is the easiest way to modularize your config.
-  --
-  --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
-  -- { import = 'custom.plugins' },
+  -- ╔══════════════════════════════════════════════════════════════════════╗
+  -- ║                    Custom Plugin Module Import                        ║
+  -- ╠══════════════════════════════════════════════════════════════════════╣
+  -- ║ This imports all custom plugin configurations from separate files.    ║
+  -- ║ The modular approach keeps this file clean and organized.            ║
+  -- ║                                                                       ║
+  -- ║ Structure: lua/custom/plugins/*.lua                                  ║
+  -- ║ • Each file contains plugins for a specific category                 ║
+  -- ║ • Managed by lua/custom/plugins/init.lua orchestrator               ║
+  -- ║ • Add new categories by creating new files in that directory         ║
+  -- ╚══════════════════════════════════════════════════════════════════════╝
+  { import = 'custom.plugins' }, -- Loads all custom plugin modules
   --
   -- For additional information with loading, sourcing and examples see `:help lazy.nvim-🔌-plugin-spec`
   -- Or use telescope!

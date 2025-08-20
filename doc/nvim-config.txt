@@ -1,0 +1,554 @@
+*nvim-config.txt*  Advanced Neovim Configuration based on kickstart.nvim
+
+================================================================================
+CONTENTS                                                    *nvim-config-contents*
+
+1. Introduction ............................................. |nvim-config-intro|
+2. Installation ......................................... |nvim-config-install|
+3. Configuration .................................... |nvim-config-configuration|
+4. Key Mappings ......................................... |nvim-config-mappings|
+5. Plugins ................................................ |nvim-config-plugins|
+6. Language Support ...................................... |nvim-config-languages|
+7. Commands .............................................. |nvim-config-commands|
+8. Customization .................................... |nvim-config-customization|
+9. Troubleshooting ................................ |nvim-config-troubleshooting|
+10. API Reference ............................................ |nvim-config-api|
+
+================================================================================
+1. INTRODUCTION                                                *nvim-config-intro*
+
+This is an advanced Neovim configuration built on kickstart.nvim, providing a
+complete IDE experience with 70+ plugins organized into 12 custom modules.
+
+FEATURES                                                   *nvim-config-features*
+
+- Modular architecture with lazy loading
+- Comprehensive LSP support for 15+ languages
+- AI integration with Claude Code
+- Git integration (Fugitive, LazyGit, Gitsigns, Diffview)
+- Modern completion with blink.cmp v1.*
+- Testing and debugging support
+- Note-taking with Zettelkasten (zk-nvim)
+- 20+ colorscheme variants with theme manager
+
+REQUIREMENTS                                            *nvim-config-requirements*
+
+- Neovim >= 0.10.0 (latest stable or nightly)
+- Git >= 2.19.0
+- C compiler (gcc/clang)
+- Make, unzip
+- ripgrep (https://github.com/BurntSushi/ripgrep)
+- Clipboard tool (xclip/xsel on Linux, built-in on macOS/Windows)
+- Node.js >= 16.0 (for TypeScript/JavaScript development)
+- Python >= 3.8 (for Python development)
+
+================================================================================
+2. INSTALLATION                                             *nvim-config-install*
+
+QUICK INSTALL                                         *nvim-config-quick-install*
+
+Linux/macOS: >bash
+    # Backup existing config
+    mv ~/.config/nvim ~/.config/nvim.bak
+    mv ~/.local/share/nvim ~/.local/share/nvim.bak
+    
+    # Clone this configuration
+    git clone <repository-url> ~/.config/nvim
+    
+    # Start Neovim
+    nvim
+<
+
+Windows (PowerShell): >powershell
+    # Backup existing config
+    Move-Item $env:LOCALAPPDATA\nvim $env:LOCALAPPDATA\nvim.bak
+    Move-Item $env:LOCALAPPDATA\nvim-data $env:LOCALAPPDATA\nvim-data.bak
+    
+    # Clone this configuration
+    git clone <repository-url> $env:LOCALAPPDATA\nvim
+    
+    # Start Neovim
+    nvim
+<
+
+POST-INSTALLATION                                   *nvim-config-post-installation*
+
+1. Wait for lazy.nvim to install all plugins automatically
+2. Run `:checkhealth` to verify setup
+3. Open `:Mason` to install desired language servers
+4. If using Nerd Font, set `vim.g.have_nerd_font = true` in init.lua
+
+================================================================================
+3. CONFIGURATION                                       *nvim-config-configuration*
+
+FILE STRUCTURE                                          *nvim-config-file-structure*
+
+    ~/.config/nvim/
+    ├── init.lua                  Main configuration file
+    ├── lazy-lock.json           Plugin version lock file
+    ├── doc/
+    │   └── nvim-config.txt      This help file
+    └── lua/
+        ├── kickstart/           Optional kickstart modules
+        │   ├── health.lua       Health check utilities
+        │   └── plugins/         Disabled optional modules
+        └── custom/
+            └── plugins/         Active custom configuration
+                ├── init.lua     Module orchestrator
+                ├── core.lua     Essential plugins
+                ├── ui.lua       UI enhancements
+                ├── editor.lua   Editor improvements
+                ├── git.lua      Git integration
+                ├── lsp.lua      Language servers
+                ├── completion.lua   Auto-completion
+                ├── treesitter.lua   Syntax highlighting
+                ├── telescope.lua    Fuzzy finding
+                ├── languages.lua    Language support
+                ├── tools.lua        Development tools
+                └── themes.lua       Colorschemes
+
+MAIN SECTIONS                                         *nvim-config-main-sections*
+
+The `init.lua` file contains:
+- Leader key configuration (lines 87-91)
+- Editor options (lines 96-162)
+- Basic keymaps (lines 164-204)
+- Autocommands (lines 206-218)
+- Plugin management (lines 220-1020)
+
+================================================================================
+4. KEY MAPPINGS                                            *nvim-config-mappings*
+
+LEADER KEY                                                *nvim-config-leader-key*
+
+The leader key is set to `<Space>`. Most custom commands use this prefix.
+
+ESSENTIAL MAPPINGS                                  *nvim-config-essential-mappings*
+
+General:
+  <leader>?         Show all keybindings
+  <leader><Space>   Find existing buffers
+  <leader>e         Toggle file explorer
+
+Search:                                              *nvim-config-search-mappings*
+  <leader>sf        Find files
+  <leader>sg        Live grep (search in files)
+  <leader>sw        Search current word
+  <leader>sh        Search help
+  <leader>sk        Search keymaps
+  <leader>s.        Search recent files
+
+LSP:                                                     *nvim-config-lsp-mappings*
+  grn               Rename symbol
+  gra               Code action
+  grr               Find references
+  grd               Go to definition
+  gri               Go to implementation
+  K                 Hover documentation
+  <leader>f         Format buffer
+
+Git:                                                     *nvim-config-git-mappings*
+  <leader>gg        Open LazyGit
+  <leader>gs        Git status (Fugitive)
+  <leader>gc        Git commit
+  <leader>gd        Diff view
+  <leader>hs        Stage hunk
+  <leader>hr        Reset hunk
+  ]h                Next hunk
+  [h                Previous hunk
+
+Testing:                                                *nvim-config-test-mappings*
+  <leader>tt        Run nearest test
+  <leader>tf        Run file tests
+  <leader>td        Debug test
+  <leader>ts        Toggle test summary
+
+AI Assistant:                                            *nvim-config-ai-mappings*
+  <leader>cc        Open Claude Code
+  <leader>ce        Explain code
+  <leader>cr        Review code
+  <leader>cf        Fix issues
+  <leader>cg        Generate code
+
+Notes:                                                  *nvim-config-note-mappings*
+  <leader>zn        New note
+  <leader>zd        Daily note
+  <leader>zf        Find notes
+  <leader>zb        Show backlinks
+
+WINDOW NAVIGATION                                   *nvim-config-window-navigation*
+
+  <C-h>             Move to left window
+  <C-j>             Move to window below
+  <C-k>             Move to window above
+  <C-l>             Move to right window
+
+================================================================================
+5. PLUGINS                                                  *nvim-config-plugins*
+
+PLUGIN MANAGER                                         *nvim-config-plugin-manager*
+
+This configuration uses lazy.nvim for plugin management.
+
+Commands:
+  :Lazy             Open plugin manager UI
+  :Lazy update      Update all plugins
+  :Lazy sync        Sync plugin state
+  :Lazy profile     Profile startup time
+  :Lazy restore     Restore from lock file
+
+CORE PLUGINS                                            *nvim-config-core-plugins*
+
+- auto-session: Session management
+- dashboard-nvim: Start screen
+- vim-tmux-navigator: Tmux integration
+- better-escape.nvim: Better escape handling
+
+UI PLUGINS                                                *nvim-config-ui-plugins*
+
+- lualine.nvim: Statusline
+- indent-blankline.nvim: Indentation guides
+- fidget.nvim: LSP progress
+- which-key.nvim: Keybinding hints
+- nvim-web-devicons: File icons
+
+EDITOR PLUGINS                                        *nvim-config-editor-plugins*
+
+- Comment.nvim: Toggle comments (gcc, gbc)
+- nvim-surround: Surround text (cs, ds, ys)
+- nvim-autopairs: Auto-close brackets
+- leap.nvim: Fast motion (s, S)
+- mini.nvim: Extended text objects and utilities
+- undotree: Undo history visualization
+
+GIT PLUGINS                                              *nvim-config-git-plugins*
+
+- vim-fugitive: Git commands
+- gitsigns.nvim: Git decorations
+- lazygit.nvim: LazyGit integration
+- diffview.nvim: Diff viewer
+
+LSP PLUGINS                                              *nvim-config-lsp-plugins*
+
+- nvim-lspconfig: LSP configuration
+- mason.nvim: LSP installer
+- mason-lspconfig.nvim: Mason bridge
+- mason-tool-installer.nvim: Auto-install tools
+- lazydev.nvim: Lua development
+- actions-preview.nvim: Code actions preview
+- conform.nvim: Formatting
+
+COMPLETION PLUGINS                                  *nvim-config-completion-plugins*
+
+- blink.cmp: Completion engine (v1.*)
+- LuaSnip: Snippet engine
+- friendly-snippets: Snippet collection
+- vim-dadbod-completion: Database completion
+
+================================================================================
+6. LANGUAGE SUPPORT                                       *nvim-config-languages*
+
+SUPPORTED LANGUAGES                              *nvim-config-supported-languages*
+
+The configuration includes pre-configured support for:
+
+- Python (basedpyright, black, isort, pytest)
+- TypeScript/JavaScript (tsserver, prettier, eslint)
+- Rust (rust-analyzer, rustfmt)
+- Go (gopls, gofmt)
+- Lua (lua-ls with Neovim API)
+- C/C++ (clangd)
+- Java (jdtls)
+- Ruby (solargraph)
+- PHP (intelephense)
+- HTML/CSS (html-lsp, css-lsp)
+- JSON/YAML (jsonls, yamlls)
+- Markdown (marksman)
+- Docker (dockerls, docker-compose)
+- SQL (sqlls)
+
+INSTALLING LANGUAGE SERVERS                                   *nvim-config-mason*
+
+1. Open Mason: `:Mason`
+2. Search with `/`
+3. Install with `i`
+4. Verify with `:LspInfo`
+
+PYTHON DEVELOPMENT                                    *nvim-config-python-support*
+
+Features:
+- Virtual environment auto-detection
+- Test runner (neotest-python)
+- Debugger (nvim-dap-python)
+- Formatting (black, isort)
+- Type checking (basedpyright)
+
+Commands:
+  :VenvSelect       Select virtual environment
+  <leader>tt        Run nearest test
+  <leader>td        Debug test
+
+WEB DEVELOPMENT                                          *nvim-config-web-support*
+
+Features:
+- TypeScript/JavaScript LSP
+- React/Vue support with JSX/TSX
+- Emmet abbreviations
+- Tailwind CSS IntelliSense
+- REST client (rest.nvim)
+- Live server integration
+
+MARKDOWN                                            *nvim-config-markdown-support*
+
+Features:
+- Live preview (markdown-preview.nvim)
+- In-editor rendering (render-markdown.nvim)
+- Table formatting
+- Heading highlights (headlines.nvim)
+
+Commands:
+  <leader>mp        Start markdown preview
+  :RenderMarkdown   Toggle rendering
+
+================================================================================
+7. COMMANDS                                                *nvim-config-commands*
+
+PLUGIN MANAGEMENT                                 *nvim-config-plugin-commands*
+
+  :Lazy             Plugin manager UI
+  :Lazy update      Update plugins
+  :Lazy sync        Sync and update
+  :Lazy clean       Remove unused plugins
+  :Lazy profile     Startup profiling
+  :Lazy log         View plugin log
+
+LSP COMMANDS                                           *nvim-config-lsp-commands*
+
+  :Mason            LSP installer UI
+  :LspInfo          Active LSP information
+  :LspLog           View LSP log
+  :LspStart         Start LSP manually
+  :LspStop          Stop LSP
+  :LspRestart       Restart LSP
+  :ConformInfo      Formatter information
+
+GIT COMMANDS                                           *nvim-config-git-commands*
+
+  :Git              Fugitive status
+  :Gdiff            Git diff
+  :Gblame           Git blame
+  :LazyGit          Open LazyGit
+  :DiffviewOpen     Open diff view
+  :Gitsigns         Gitsigns commands
+
+TESTING COMMANDS                                     *nvim-config-test-commands*
+
+  :Neotest run      Run tests
+  :Neotest stop     Stop tests
+  :Neotest output   Show output
+  :Neotest summary  Toggle summary
+
+UTILITY COMMANDS                                   *nvim-config-utility-commands*
+
+  :Telescope        Open Telescope
+  :NvimTreeToggle   Toggle file tree
+  :Trouble          Toggle diagnostics
+  :TodoTelescope    Search TODOs
+  :UndotreeToggle   Toggle undo tree
+  :ZkNew            New note
+  :ZkNotes          List notes
+  :ClaudeCode       Open AI assistant
+
+================================================================================
+8. CUSTOMIZATION                                       *nvim-config-customization*
+
+ADDING PLUGINS                                      *nvim-config-adding-plugins*
+
+1. Create or edit files in `lua/custom/plugins/`
+2. Follow the plugin specification format:
+>lua
+    return {
+      {
+        'author/plugin-name',
+        event = 'VimEnter',  -- Lazy loading event
+        opts = {
+          -- Plugin configuration
+        },
+      },
+    }
+<
+
+ADDING LSP SERVERS                                      *nvim-config-adding-lsp*
+
+Edit `lua/custom/plugins/lsp.lua` and add to the servers table:
+>lua
+    servers.new_ls = {
+      settings = {
+        new_ls = {
+          -- Server-specific settings
+        }
+      }
+    }
+<
+
+CUSTOM KEYBINDINGS                              *nvim-config-custom-keybindings*
+
+Add to init.lua or use which-key spec:
+>lua
+    vim.keymap.set('n', '<leader>xx', '<cmd>Command<cr>', 
+                   { desc = 'Description' })
+<
+
+CHANGING THEMES                                      *nvim-config-changing-themes*
+
+1. Run `<leader>ct` to open theme selector
+2. Preview with arrow keys
+3. Press Enter to apply
+
+Or set directly in init.lua:
+>lua
+    vim.cmd.colorscheme 'tokyonight-night'
+<
+
+================================================================================
+9. TROUBLESHOOTING                                   *nvim-config-troubleshooting*
+
+HEALTH CHECK                                            *nvim-config-health-check*
+
+Always start troubleshooting with:
+>vim
+    :checkhealth
+<
+
+This will verify:
+- Neovim version compatibility
+- Required dependencies
+- Plugin status
+- LSP configuration
+- Provider status
+
+COMMON ISSUES                                         *nvim-config-common-issues*
+
+Plugins not loading:~
+>vim
+    :Lazy sync
+    :checkhealth lazy
+<
+
+LSP not working:~
+>vim
+    :LspInfo
+    :Mason
+    :checkhealth lsp
+<
+
+Clipboard not working:~
+- Linux: Install xclip or xsel
+- Check with `:checkhealth provider`
+
+Slow startup:~
+>vim
+    :Lazy profile
+<
+- Review and disable unnecessary plugins
+- Check lazy loading configuration
+
+Icons not showing:~
+1. Install a Nerd Font (JetBrainsMono recommended)
+2. Set terminal font to the Nerd Font
+3. Set `vim.g.have_nerd_font = true` in init.lua
+
+DEBUGGING TIPS                                       *nvim-config-debugging-tips*
+
+View plugin status:
+>vim
+    :Lazy
+    :Lazy debug
+<
+
+Check module loading:
+>vim
+    :lua print(vim.inspect(require('custom.plugins')))
+<
+
+LSP debugging:
+>vim
+    :lua print(vim.lsp.get_active_clients())
+    :lua vim.lsp.set_log_level("debug")
+<
+
+================================================================================
+10. API REFERENCE                                             *nvim-config-api*
+
+MODULE ARCHITECTURE                              *nvim-config-module-architecture*
+
+The configuration uses a modular architecture with the following structure:
+
+1. `init.lua` - Main configuration file
+2. `lua/custom/plugins/init.lua` - Plugin orchestrator
+3. Individual plugin modules in `lua/custom/plugins/`
+
+PLUGIN SPECIFICATION                            *nvim-config-plugin-specification*
+
+Standard plugin specification format:
+>lua
+    {
+      'author/plugin-name',           -- Required
+      version = '1.*',                 -- Optional version
+      event = 'VimEnter',             -- Lazy loading event
+      cmd = { 'Command' },            -- Load on command
+      keys = { '<leader>x' },         -- Load on keymap
+      dependencies = { 'dep/plugin' }, -- Dependencies
+      build = ':TSUpdate',            -- Build command
+      config = function() end,        -- Config function
+      opts = {},                      -- Setup options
+      enabled = true,                 -- Enable/disable
+      priority = 1000,                -- Load priority
+    }
+<
+
+LOADING EVENTS                                      *nvim-config-loading-events*
+
+Common lazy loading events:
+- `VimEnter` - After Vim startup
+- `BufReadPre` - Before reading buffer
+- `BufReadPost` - After reading buffer
+- `BufNewFile` - New file created
+- `InsertEnter` - Entering insert mode
+- `VeryLazy` - Deferred after startup
+
+SAFE MODULE LOADING                              *nvim-config-safe-module-loading*
+
+The configuration uses safe_require for error handling:
+>lua
+    local function safe_require(module)
+      local ok, result = pcall(require, module)
+      if not ok then
+        vim.notify('Failed to load ' .. module .. ': ' .. result, 
+                   vim.log.levels.ERROR)
+        return {}
+      end
+      return result
+    end
+<
+
+LSP ON_ATTACH                                          *nvim-config-lsp-on-attach*
+
+The on_attach function configures buffer-local keymaps when LSP attaches:
+>lua
+    local on_attach = function(client, bufnr)
+      -- Keymaps and settings
+    end
+<
+
+EXTENDING CONFIGURATION                          *nvim-config-extending*
+
+To extend the configuration:
+
+1. Add new plugin modules to `lua/custom/plugins/`
+2. Update the module list in `init.lua`
+3. Follow existing patterns for consistency
+4. Test with `:checkhealth` after changes
+
+================================================================================
+vim:tw=78:ts=8:ft=help:norl:
